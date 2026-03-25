@@ -1,0 +1,177 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent;
+    user-select: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ── Full-screen overlay ── */
+#interaction-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* ── Floating target marker (positioned at entity screen coords) ── */
+.target-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: left 50ms linear, top 50ms linear, opacity 0.2s ease;
+    will-change: left, top;
+}
+
+.target-marker.visible {
+    opacity: 1;
+}
+
+/* ── The dot/icon at the entity position ── */
+.target-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(30, 30, 30, 0.95), rgba(20, 20, 20, 0.9));
+    border: 2px solid rgba(200, 170, 110, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: all;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.6), 0 0 6px rgba(200, 170, 110, 0.25);
+    transition: all 0.2s ease;
+    animation: dotPulse 2s ease-in-out infinite;
+}
+
+.target-dot:hover {
+    border-color: rgba(200, 170, 110, 1);
+    box-shadow: 0 0 18px rgba(0, 0, 0, 0.6), 0 0 12px rgba(200, 170, 110, 0.4);
+    transform: scale(1.15);
+}
+
+.target-dot i {
+    font-size: 11px;
+    color: rgba(200, 170, 110, 0.9);
+}
+
+@keyframes dotPulse {
+    0%, 100% { box-shadow: 0 0 12px rgba(0, 0, 0, 0.6), 0 0 6px rgba(200, 170, 110, 0.25); }
+    50% { box-shadow: 0 0 16px rgba(0, 0, 0, 0.6), 0 0 10px rgba(200, 170, 110, 0.35); }
+}
+
+/* ── Options dropdown from the dot ── */
+.target-options {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: all 0.2s ease;
+}
+
+.target-marker.expanded .target-options {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* ── Individual option button ── */
+.interaction-option {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    background: linear-gradient(135deg, rgba(25, 22, 18, 0.95), rgba(35, 30, 24, 0.92));
+    border: 1px solid rgba(200, 170, 110, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    pointer-events: all;
+    white-space: nowrap;
+    min-width: 120px;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.interaction-option:hover {
+    background: linear-gradient(135deg, rgba(200, 170, 110, 0.2), rgba(180, 150, 90, 0.15));
+    border-color: rgba(200, 170, 110, 0.7);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(200, 170, 110, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transform: translateX(2px);
+}
+
+.interaction-option:active {
+    transform: translateX(0);
+    transition-duration: 0.05s;
+}
+
+/* ── Option icon ── */
+.option-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(200, 170, 110, 0.12);
+    border: 1px solid rgba(200, 170, 110, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.option-icon i {
+    font-size: 10px;
+    color: rgba(200, 170, 110, 0.9);
+}
+
+.interaction-option:hover .option-icon {
+    background: rgba(200, 170, 110, 0.2);
+    border-color: rgba(200, 170, 110, 0.5);
+}
+
+/* ── Option text ── */
+.option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.option-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(230, 220, 200, 0.95);
+    letter-spacing: 0.3px;
+}
+
+.option-description {
+    font-size: 9px;
+    color: rgba(200, 190, 170, 0.55);
+    font-weight: 400;
+}
+
+.interaction-option:hover .option-label {
+    color: rgba(200, 170, 110, 1);
+}
+
+.interaction-option:hover .option-description {
+    color: rgba(200, 190, 170, 0.75);
+}
