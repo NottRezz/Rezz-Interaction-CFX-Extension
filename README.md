@@ -1,16 +1,19 @@
 # rezz-interaction
 
-An **ox_target-style interaction/targeting system for RedM**. Players hold a key to enter targeting mode — an eye icon appears at screen center. When looking at a registered entity or standing in a registered zone, interaction options appear as a vertical list. Clicking an option triggers a client event in your resource.
+A **proximity-based interaction system for RedM** with floating world markers. Players hold a key to enter targeting mode — nearby registered entities and zones display interactive dots at their world position on screen. Clicking a dot expands an options dropdown. Selecting an option triggers a client event in your resource.
 
 ## Features
 
+- **Proximity scanning** — discovers all nearby peds, vehicles, objects, and zones within range simultaneously
+- **Floating world markers** — interactive dots render at each entity's screen-projected position with smooth tracking
+- **Click-to-expand** — dots expand into an options dropdown on click; only one can be open at a time
 - **Model targeting** — register options by model name or hash
 - **Entity targeting** — register options by network ID
-- **Global type targeting** — options on all peds, vehicles, or objects
+- **Global type targeting** — blanket options on all peds, vehicles, or objects
 - **Zone targeting** — location-based interactions with configurable radius
-- **Conditional visibility** — `canInteract` callbacks (Lua)
+- **Conditional visibility** — `canInteract` callbacks per option
 - **C# / JS interop** — event-based API alongside Lua exports
-- **Animated UI** — smooth slide-in options with western-themed styling
+- **Western-themed UI** — dark, gold-accented styling with pulse animations and smooth transitions
 
 ---
 
@@ -31,21 +34,24 @@ Edit `config.lua`:
 
 | Setting | Default | Description |
 |---|---|---|
-| `Config.TargetKey` | `0x8FFC75D6` | Control hash to hold for targeting mode (Left Alt) |
-| `Config.MaxDistance` | `5.0` | Maximum raycast distance in game units |
-| `Config.Debug` | `false` | Draw debug raycast lines |
+| `Config.TargetKey` | `0x8AAA0AD4` | Control hash to hold for targeting mode (Left Alt) |
+| `Config.MaxDistance` | `5.0` | Maximum proximity scan distance in game units |
+| `Config.ScanInterval` | `100` | How often (ms) to scan for nearby targets while in targeting mode |
+| `Config.Debug` | `false` | Enable debug mode |
 | `Config.DefaultZoneDistance` | `2.5` | Default radius for zone-based targets |
 
 ---
 
 ## How It Works
 
-1. Player holds **Left Alt** → enters targeting mode, eye icon appears
-2. A raycast fires from the camera forward up to `MaxDistance`
-3. If the ray hits an entity with registered options (by network ID, model hash, or global type), options appear to the right of the eye
-4. If no entity is hit, zone proximity is checked instead
-5. Player clicks an option → the associated client event fires
-6. Releasing Alt or pressing Escape closes targeting mode
+1. Player holds **Left Alt** → enters targeting mode, NUI focus is enabled
+2. A proximity scan runs every 50 ms, finding all peds, vehicles, objects, and zones within `MaxDistance`
+3. Each entity/zone with registered options gets a floating **dot marker** projected to its screen position
+4. The dot displays the icon of the first registered option and pulses gently
+5. Player clicks a dot → the options dropdown expands below it
+6. Player clicks an option → the associated client event fires with entity handle, network ID, and custom data
+7. Releasing Alt or pressing Escape closes targeting mode
+8. Stale entity targets are automatically pruned every 5 seconds
 
 ---
 
@@ -381,7 +387,7 @@ The UI uses [Font Awesome 6](https://fontawesome.com/icons?d=gallery&s=solid). S
 
 ## Troubleshooting
 
-**Eye icon doesn't appear when holding Alt**
+**No markers appear when holding Alt**
 - Verify the resource is running: `restart rezz-interaction` in console
 - Check `Config.TargetKey` matches your desired input hash
 - Check for errors in the F8 console
@@ -390,7 +396,7 @@ The UI uses [Font Awesome 6](https://fontawesome.com/icons?d=gallery&s=solid). S
 - Ensure the entity is within `Config.MaxDistance` (default 5.0)
 - For `addEntity`, pass the **network ID**, not the entity handle — use `NetworkGetNetworkIdFromEntity(entity)`
 - For `addModel`, verify the model name/hash is correct
-- Enable `Config.Debug = true` to see raycast lines
+- Enable `Config.Debug = true` for additional diagnostics
 
 **`canInteract` doesn't work from C#**
 - `canInteract` only works with Lua exports (it's a function callback)
