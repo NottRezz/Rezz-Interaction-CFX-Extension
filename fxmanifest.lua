@@ -7,7 +7,7 @@ description 'ox_target-style interaction/targeting system for RedM'
 version '1.0.0'
 author 'Rezz'
 
-ui_page 'html/index.html'
+ui_page 'ui/dist/index.html'
 
 shared_scripts {
     'config.lua',
@@ -18,7 +18,6 @@ client_scripts {
 }
 
 files {
-    'html/index.html',
-    'html/style.css',
-    'html/script.js',
+    'ui/dist/index.html',
+    'ui/dist/assets/*',
 }

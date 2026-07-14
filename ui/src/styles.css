@@ -1,0 +1,152 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Stone-and-blood theme, matching vorp_character/orbit_horses: near-black surfaces, hairline
+   borders, blood-red interactive accent. Markers are world-anchored (screenX/screenY are
+   percentages from Lua's GetScreenCoordFromWorldCoord), so the overlay itself stays
+   pointer-events:none full-bleed and only the dot/options opt back in. */
+.ri-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.ri-overlay--fading .ri-marker {
+  opacity: 0 !important;
+}
+
+.ri-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  pointer-events: none;
+  opacity: 1;
+  transition: left 50ms linear, top 50ms linear, opacity 0.2s ease;
+  will-change: left, top;
+  animation: rk-fade-in 0.18s ease both;
+}
+
+.ri-dot {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--rk-panel-alt), var(--rk-panel));
+  border: 2px solid var(--rk-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.6);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  animation: ri-dot-pulse 2s ease-in-out infinite;
+}
+
+.ri-dot:hover {
+  border-color: var(--rk-accent-strong);
+  box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.6), 0 0 0.5rem rgba(181, 48, 48, 0.4);
+}
+
+.ri-dot i {
+  font-size: 0.7rem;
+  color: var(--rk-stone-strong);
+}
+
+@keyframes ri-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.6), 0 0 0.35rem rgba(138, 28, 28, 0.25); }
+  50% { box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.6), 0 0 0.6rem rgba(138, 28, 28, 0.4); }
+}
+
+/* ── Options dropdown ─────────────────────────────────── */
+.ri-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-0.25rem);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.ri-marker--expanded .ri-options {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* Flat stone/blood button language, matching orbit_horses' oh-action-btn and orbit_ui_kit's
+   rk-btn: transparent at rest, dim text, hairline border - only fills with a light blood wash
+   and flips border/text to accent-strong on hover. No gradient/shadow/translate gloss. */
+.ri-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--rk-panel);
+  border: 1px solid var(--rk-border);
+  border-radius: var(--rk-radius);
+  color: var(--rk-text-dim);
+  cursor: pointer;
+  pointer-events: auto;
+  white-space: nowrap;
+  min-width: 7.5rem;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.ri-option:hover {
+  background: rgba(138, 28, 28, 0.14);
+  border-color: var(--rk-accent-strong);
+  color: var(--rk-accent-strong);
+}
+
+.ri-option:active {
+  background: rgba(138, 28, 28, 0.22);
+}
+
+.ri-option-icon {
+  width: 1.4rem;
+  height: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.ri-option-icon i {
+  font-size: 0.7rem;
+  color: inherit;
+}
+
+.ri-option:hover .ri-option-icon {
+  opacity: 1;
+}
+
+.ri-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.ri-option-label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.ri-option-desc {
+  font-size: 0.6rem;
+  color: var(--rk-text-dim);
+  text-transform: none;
+  letter-spacing: normal;
+}

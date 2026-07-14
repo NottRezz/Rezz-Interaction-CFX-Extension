@@ -15,6 +15,18 @@ local globalObjectOptions = {}
 -- ══════════════════════════════════════════════════════════
 --  Exports: Add/Remove targets
 -- ══════════════════════════════════════════════════════════
+lightState = true
+Citizen.CreateThread(function()
+    while true do
+        Wait(1000)
+        DisableFarArtificialLights(true)
+        SetArtificialLightsState(true)
+        for i = 0, 500 do
+            SetProxyInteriorIndexArtificialLightsState(i,false)
+        end
+    end
+end)
+
 
 local function addModel(models, options)
     if type(models) ~= 'table' then models = { models } end
@@ -205,12 +217,12 @@ local function scanNearbyTargets()
     -- Scan nearby peds
     local pedHandle, pedId = FindFirstPed()
     if pedHandle ~= -1 then
-        tryAddEntity(pedId, 1.0)
+        tryAddEntity(pedId, 0.0)
         local found = true
         while found do
             found, pedId = FindNextPed(pedHandle)
             if found then
-                tryAddEntity(pedId, 1.0)
+                tryAddEntity(pedId, 0.0)
             end
         end
         EndFindPed(pedHandle)
@@ -219,12 +231,12 @@ local function scanNearbyTargets()
     -- Scan nearby vehicles
     local vehHandle, vehId = FindFirstVehicle()
     if vehHandle ~= -1 then
-        tryAddEntity(vehId, 0.5)
+        tryAddEntity(vehId, 0.0)
         local found = true
         while found do
             found, vehId = FindNextVehicle(vehHandle)
             if found then
-                tryAddEntity(vehId, 0.5)
+                tryAddEntity(vehId, 0.0)
             end
         end
         EndFindVehicle(vehHandle)
@@ -233,12 +245,12 @@ local function scanNearbyTargets()
     -- Scan nearby objects
     local objHandle, objId = FindFirstObject()
     if objHandle ~= -1 then
-        tryAddEntity(objId, 0.5)
+        tryAddEntity(objId, 0.0)
         local found = true
         while found do
             found, objId = FindNextObject(objHandle)
             if found then
-                tryAddEntity(objId, 0.5)
+                tryAddEntity(objId, 0.0)
             end
         end
         EndFindObject(objHandle)
@@ -261,7 +273,7 @@ local function scanNearbyTargets()
                     entity = 0,
                     zoneName = name,
                     zoneCoords = zone.coords,
-                    zOffset = 0.5,
+                    zOffset = 0.0,
                     dist = dist,
                     options = zoneOpts,
                 })
@@ -300,6 +312,8 @@ local function buildNuiTargets(targets)
                         icon = opt.icon or 'fas fa-hand-pointer',
                         description = opt.description or '',
                         event = opt.event or '',
+                        serverEvent = opt.serverEvent or '',
+                        args = opt.args or {},
                         data = opt.data or {},
                         index = i,
                     })
@@ -379,18 +393,28 @@ RegisterNUICallback('optionSelected', function(data, cb)
     local targetId = data.targetId
     local entity = activeTargetEntities[targetId] or 0
 
+    local netId = 0
+    if entity ~= 0 and DoesEntityExist(entity) and NetworkGetEntityIsNetworked(entity) then
+        netId = NetworkGetNetworkIdFromEntity(entity)
+    end
+
+    local args = data.args or {}
+
     local event = data.event
     if event and event ~= '' then
-        local netId = 0
-        if entity ~= 0 and DoesEntityExist(entity) and NetworkGetEntityIsNetworked(entity) then
-            netId = NetworkGetNetworkIdFromEntity(entity)
-        end
-
         TriggerEvent(event, {
             entity = entity,
             netId = netId,
             data = data.data or {},
-        })
+        }, table.unpack(args))
+    end
+
+    local serverEvent = data.serverEvent
+    if serverEvent and serverEvent ~= '' then
+        TriggerServerEvent(serverEvent, {
+            netId = netId,
+            data = data.data or {},
+        }, table.unpack(args))
     end
 
     disableTargeting()
